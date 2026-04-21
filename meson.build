@@ -11,8 +11,8 @@ env_v = get_option('VERSION')
 ver   = env_v != '' ? env_v : git_v
 
 # Dependencies
-libusb_dep = dependency('libusb-1.0')
-libxml_dep = dependency('libxml-2.0')
+libusb_dep = dependency('libusb-1.0', static: true)
+libxml_dep = dependency('libxml-2.0', static: true)
 help2man = find_program('help2man', required: false)
 
 # Common include dirs
@@ -22,6 +22,8 @@ inc = include_directories('.')
 ws2_dep = []
 if host_machine.system() == 'windows'
   ws2_dep = meson.get_compiler('c').find_library('ws2_32', required : false)
+  add_project_link_arguments('-static', '-static-libgcc', language: 'c')
+  add_project_arguments('-DLIBXML_STATIC', language: 'c')
 endif
 
 common_dep = [libusb_dep, libxml_dep, ws2_dep]
