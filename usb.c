@@ -367,7 +367,7 @@ struct qdl_device_desc *usb_list(unsigned int *devices_found)
 
 		serial = strstr((char *)buf, "_SN:");
 		if (!serial) {
-			result[count].serial[0] = '\0';
+			memcpy(result[count].serial, "(none)", sizeof("(none)"));
 		} else {
 			serial += strlen("_SN:");
 			serial_len = strcspn(serial, " _");
