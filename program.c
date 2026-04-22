@@ -222,6 +222,25 @@ static int load_program_tag(xmlNode *node, bool is_nand, bool allow_missing, con
 	return 0;
 }
 
+static void log_progress(int step, int num_steps)
+{
+	ux_info("Progress %d%%\n", (step) * 100 / (num_steps));
+}
+
+static int get_num_program_steps()
+{
+	struct program *program;
+	int num_steps = 0;
+
+	list_for_each_entry(program, &programs, node) {
+		if (program->is_erase || !program->filename)
+			continue;
+		num_steps++;
+	}
+
+	return num_steps;
+}
+
 int program_load(const char *program_file, bool is_nand, bool allow_missing, const char *incdir)
 {
 	xmlNode *node;
@@ -269,10 +288,14 @@ int program_execute(struct qdl_device *qdl, int (*apply)(struct qdl_device *qdl,
 	struct program *program;
 	int ret;
 	int fd;
+	int step = 0;
+	int num_steps = get_num_program_steps();
 
 	list_for_each_entry(program, &programs, node) {
 		if (program->is_erase || !program->filename)
 			continue;
+		step++;
+		log_progress(step, num_steps);
 
 		fd = open(program->filename, O_RDONLY | O_BINARY);
 
